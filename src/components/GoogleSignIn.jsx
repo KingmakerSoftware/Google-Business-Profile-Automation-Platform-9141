@@ -4,7 +4,7 @@ import { useGoogleAuth } from '../contexts/GoogleAuthContext';
 import SafeIcon from '../common/SafeIcon';
 import * as FiIcons from 'react-icons/fi';
 
-const { FiChrome, FiZap, FiShield, FiTrendingUp, FiAlertCircle } = FiIcons;
+const { FiChrome, FiZap, FiShield, FiTrendingUp, FiAlertCircle, FiSettings } = FiIcons;
 
 const GoogleSignIn = () => {
   const { signIn, isLoading, authError } = useGoogleAuth();
@@ -33,6 +33,8 @@ const GoogleSignIn = () => {
     'Manage posts and updates',
     'Monitor and respond to reviews'
   ];
+
+  const showSetupInstructions = authError && authError.includes('Client ID not configured');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
@@ -75,10 +77,25 @@ const GoogleSignIn = () => {
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center justify-center text-red-700"
+              className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg"
             >
-              <SafeIcon icon={FiAlertCircle} className="w-5 h-5 mr-2" />
-              {authError}
+              <div className="flex items-start">
+                <SafeIcon icon={FiAlertCircle} className="w-5 h-5 text-red-600 mr-2 mt-0.5 flex-shrink-0" />
+                <div className="text-left">
+                  <p className="text-red-700 font-medium mb-2">{authError}</p>
+                  {showSetupInstructions && (
+                    <div className="text-sm text-red-600">
+                      <p className="mb-2">To fix this:</p>
+                      <ol className="list-decimal list-inside space-y-1 text-left">
+                        <li>Go to <a href="https://console.cloud.google.com" target="_blank" rel="noopener noreferrer" className="underline">Google Cloud Console</a></li>
+                        <li>Create OAuth 2.0 credentials</li>
+                        <li>Copy the Client ID to your .env file</li>
+                        <li>See SETUP_INSTRUCTIONS.md for detailed steps</li>
+                      </ol>
+                    </div>
+                  )}
+                </div>
+              </div>
             </motion.div>
           )}
 
@@ -87,13 +104,18 @@ const GoogleSignIn = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
             onClick={signIn}
-            disabled={isLoading}
+            disabled={isLoading || showSetupInstructions}
             className="inline-flex items-center px-8 py-4 bg-white border-2 border-gray-300 rounded-xl text-gray-700 font-semibold text-lg hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <>
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-3"></div>
                 Connecting...
+              </>
+            ) : showSetupInstructions ? (
+              <>
+                <SafeIcon icon={FiSettings} className="w-6 h-6 mr-3" />
+                Setup Required
               </>
             ) : (
               <>
@@ -107,22 +129,24 @@ const GoogleSignIn = () => {
             )}
           </motion.button>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            className="mt-6 text-sm text-gray-500"
-          >
-            <p className="mb-2">This app will request permission to:</p>
-            <ul className="text-left max-w-md mx-auto space-y-1">
-              {permissions.map((permission, index) => (
-                <li key={index} className="flex items-start">
-                  <span className="text-green-500 mr-2">•</span>
-                  {permission}
-                </li>
-              ))}
-            </ul>
-          </motion.div>
+          {!showSetupInstructions && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+              className="mt-6 text-sm text-gray-500"
+            >
+              <p className="mb-2">This app will request permission to:</p>
+              <ul className="text-left max-w-md mx-auto space-y-1">
+                {permissions.map((permission, index) => (
+                  <li key={index} className="flex items-start">
+                    <span className="text-green-500 mr-2">•</span>
+                    {permission}
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          )}
         </div>
 
         <motion.div
