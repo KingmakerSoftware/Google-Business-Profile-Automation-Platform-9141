@@ -4,10 +4,10 @@ import { useGoogleAuth } from '../contexts/GoogleAuthContext';
 import SafeIcon from '../common/SafeIcon';
 import * as FiIcons from 'react-icons/fi';
 
-const { FiChrome, FiZap, FiShield, FiTrendingUp } = FiIcons;
+const { FiChrome, FiZap, FiShield, FiTrendingUp, FiAlertCircle } = FiIcons;
 
 const GoogleSignIn = () => {
-  const { signIn, isLoading } = useGoogleAuth();
+  const { signIn, isLoading, authError } = useGoogleAuth();
 
   const features = [
     {
@@ -25,6 +25,13 @@ const GoogleSignIn = () => {
       title: 'Performance Analytics',
       description: 'Track and optimize your business profile performance with detailed insights'
     }
+  ];
+
+  const permissions = [
+    'View and manage your Google Business Profiles',
+    'Access profile analytics and insights',
+    'Manage posts and updates',
+    'Monitor and respond to reviews'
   ];
 
   return (
@@ -64,6 +71,17 @@ const GoogleSignIn = () => {
             automate posts, monitor reviews, and track performance from one dashboard.
           </motion.p>
 
+          {authError && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center justify-center text-red-700"
+            >
+              <SafeIcon icon={FiAlertCircle} className="w-5 h-5 mr-2" />
+              {authError}
+            </motion.div>
+          )}
+
           <motion.button
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -88,12 +106,29 @@ const GoogleSignIn = () => {
               </>
             )}
           </motion.button>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+            className="mt-6 text-sm text-gray-500"
+          >
+            <p className="mb-2">This app will request permission to:</p>
+            <ul className="text-left max-w-md mx-auto space-y-1">
+              {permissions.map((permission, index) => (
+                <li key={index} className="flex items-start">
+                  <span className="text-green-500 mr-2">•</span>
+                  {permission}
+                </li>
+              ))}
+            </ul>
+          </motion.div>
         </div>
 
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
+          transition={{ delay: 0.7 }}
           className="grid md:grid-cols-3 gap-8"
         >
           {features.map((feature, index) => (
@@ -101,7 +136,7 @@ const GoogleSignIn = () => {
               key={feature.title}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7 + index * 0.1 }}
+              transition={{ delay: 0.8 + index * 0.1 }}
               className="bg-white rounded-2xl p-6 shadow-md hover:shadow-lg transition-shadow"
             >
               <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 rounded-xl mb-4">

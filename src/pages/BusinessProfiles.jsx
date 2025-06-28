@@ -1,24 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { apiService } from '../services/apiService';
 import BusinessProfileCard from '../components/BusinessProfileCard';
 import BusinessProfilesHeader from '../components/BusinessProfilesHeader';
 import LoadingSpinner from '../components/LoadingSpinner';
+import ErrorMessage from '../components/ErrorMessage';
 
 const BusinessProfiles = () => {
   const [profiles, setProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
 
   useEffect(() => {
-    // Mock API call to fetch business profiles
-    const fetchProfiles = async () => {
+    fetchProfiles();
+  }, []);
+
+  const fetchProfiles = async () => {
+    try {
       setLoading(true);
+      setError(null);
+      const data = await apiService.getBusinessProfiles();
+      setProfiles(data.profiles || []);
+    } catch (err) {
+      console.error('Error fetching profiles:', err);
+      setError(err.response?.data?.message || 'Failed to load business profiles');
       
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Mock data
+      // Fallback to mock data for demo
       const mockProfiles = [
         {
           id: '1',
@@ -47,43 +56,13 @@ const BusinessProfiles = () => {
           photos: 23,
           posts: 12,
           lastUpdated: '2024-01-14T16:45:00Z'
-        },
-        {
-          id: '3',
-          name: 'Tech Repair Solutions',
-          address: '789 Pine St, Uptown, NY 10003',
-          phone: '(555) 456-7890',
-          website: 'https://techrepair.com',
-          rating: 4.8,
-          reviewCount: 234,
-          status: 'verified',
-          category: 'Electronics Repair',
-          photos: 8,
-          posts: 5,
-          lastUpdated: '2024-01-13T09:15:00Z'
-        },
-        {
-          id: '4',
-          name: 'Sunset Fitness Center',
-          address: '321 Elm Dr, Westside, NY 10004',
-          phone: '(555) 234-5678',
-          website: 'https://sunsetfitness.com',
-          rating: 4.6,
-          reviewCount: 156,
-          status: 'verified',
-          category: 'Gym',
-          photos: 31,
-          posts: 18,
-          lastUpdated: '2024-01-12T14:20:00Z'
         }
       ];
-      
       setProfiles(mockProfiles);
+    } finally {
       setLoading(false);
-    };
-
-    fetchProfiles();
-  }, []);
+    }
+  };
 
   const filteredProfiles = profiles.filter(profile => {
     const matchesSearch = profile.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -125,7 +104,15 @@ const BusinessProfiles = () => {
           filterStatus={filterStatus}
           setFilterStatus={setFilterStatus}
           profileCount={filteredProfiles.length}
+          onRefresh={fetchProfiles}
         />
+
+        {error && (
+          <ErrorMessage 
+            message={error} 
+            onRetry={fetchProfiles}
+          />
+        )}
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -145,7 +132,7 @@ const BusinessProfiles = () => {
           ))}
         </motion.div>
 
-        {filteredProfiles.length === 0 && (
+        {filteredProfiles.length === 0 && !error && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

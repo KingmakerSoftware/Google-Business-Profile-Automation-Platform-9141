@@ -3,14 +3,15 @@ import { motion } from 'framer-motion';
 import SafeIcon from '../common/SafeIcon';
 import * as FiIcons from 'react-icons/fi';
 
-const { FiSearch, FiFilter, FiPlus } = FiIcons;
+const { FiSearch, FiFilter, FiPlus, FiRefreshCw } = FiIcons;
 
 const BusinessProfilesHeader = ({ 
   searchTerm, 
   setSearchTerm, 
   filterStatus, 
   setFilterStatus, 
-  profileCount 
+  profileCount,
+  onRefresh
 }) => {
   const filterOptions = [
     { value: 'all', label: 'All Profiles' },
@@ -31,14 +32,27 @@ const BusinessProfilesHeader = ({
             {profileCount} {profileCount === 1 ? 'profile' : 'profiles'} found
           </p>
         </div>
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          className="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200"
-        >
-          <SafeIcon icon={FiPlus} className="w-4 h-4 mr-2" />
-          Connect New Profile
-        </motion.button>
+        <div className="flex items-center space-x-3 mt-4 sm:mt-0">
+          {onRefresh && (
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={onRefresh}
+              className="inline-flex items-center px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors duration-200"
+            >
+              <SafeIcon icon={FiRefreshCw} className="w-4 h-4 mr-2" />
+              Refresh
+            </motion.button>
+          )}
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200"
+          >
+            <SafeIcon icon={FiPlus} className="w-4 h-4 mr-2" />
+            Connect New Profile
+          </motion.button>
+        </div>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4">
